@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SpreadsheetApp.Views.HelpPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Довідка">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="10">
+
+            <Label Text="Про програму" FontSize="20" FontAttributes="Bold" />
+            <Label LineBreakMode="WordWrap"
+                   Text="Електронні таблиці. Лабораторна робота №1*, варіант 5. Програма дозволяє вводити вирази в клітинки, перевіряти їх синтаксис, обчислювати значення, зберігати таблиці у файл і на Google Drive." />
+
+            <Label Text="Як користуватися" FontSize="20" FontAttributes="Bold" />
+            <Label LineBreakMode="WordWrap"
+                   Text="Натисніть на клітинку, введіть вираз і натисніть Enter або перейдіть в іншу клітинку. Кнопка режиму перемикає відображення таблиці між виразами (ВИРАЗ) та обчисленими значеннями (ЗНАЧЕННЯ). Кнопки «+ Рядок», «+ Стовпчик» додають, а «− Рядок», «− Стовпчик» видаляють останній рядок або стовпчик." />
+
+            <Label Text="Вирази" FontSize="20" FontAttributes="Bold" />
+            <Label LineBreakMode="WordWrap"
+                   Text="Використовуються цілі числа довільної довжини, круглі дужки та посилання на клітинки (A1, B2, AB12). Операції: + − * / (бінарні), mod, div, ^ (піднесення до степеня), функції inc(x) та dec(x). Пріоритет: ^ (виконується справа наліво), потім * / div mod, потім + −. Приклад: A1 ^ 2 + inc(A2) mod 3." />
+
+            <Label Text="Помилки" FontSize="20" FontAttributes="Bold" />
+            <Label LineBreakMode="WordWrap"
+                   Text="Якщо вираз має синтаксичну помилку, програма не приймає його і показує номер символу з помилкою. Циклічні посилання між клітинками заборонені. Помилки обчислення (наприклад, ділення на нуль) показуються в клітинці як #ПОМИЛКА, а пояснення з'являється внизу після вибору клітинки." />
+
+            <Label Text="Збереження" FontSize="20" FontAttributes="Bold" />
+            <Label LineBreakMode="WordWrap"
+                   Text="Таблицю можна зберегти у файл JSON у папці Документи/SpreadsheetApp або на Google Drive. Для Google Drive потрібен файл credentials.json у тій самій папці; під час першого збереження відкриється браузер для входу в акаунт Google." />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

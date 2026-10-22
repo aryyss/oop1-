@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="SpreadsheetApp.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Електронні таблиці">
+
+    <Grid Padding="8" RowDefinitions="Auto,*,Auto" RowSpacing="8">
+
+        <FlexLayout Grid.Row="0" Wrap="Wrap" JustifyContent="Start">
+            <Button Text="Нова" Command="{Binding NewCommand}" Margin="0,0,6,6" />
+            <Button Text="Відкрити" Command="{Binding OpenCommand}" Margin="0,0,6,6" />
+            <Button Text="Зберегти" Command="{Binding SaveCommand}" Margin="0,0,6,6" />
+            <Button Text="+ Рядок" Command="{Binding AddRowCommand}" Margin="0,0,6,6" />
+            <Button Text="− Рядок" Command="{Binding RemoveRowCommand}" Margin="0,0,6,6" />
+            <Button Text="+ Стовпчик" Command="{Binding AddColumnCommand}" Margin="0,0,6,6" />
+            <Button Text="− Стовпчик" Command="{Binding RemoveColumnCommand}" Margin="0,0,6,6" />
+            <Button Text="{Binding ModeTitle}" Command="{Binding ToggleModeCommand}" Margin="0,0,6,6" />
+            <Button Text="Довідка" Command="{Binding ShowHelpCommand}" Margin="0,0,6,6" />
+        </FlexLayout>
+
+        <ScrollView Grid.Row="1" Orientation="Both">
+            <Grid x:Name="TableGrid" />
+        </ScrollView>
+
+        <Label Grid.Row="2" Text="{Binding StatusMessage}" LineBreakMode="WordWrap" />
+
+    </Grid>
+</ContentPage>

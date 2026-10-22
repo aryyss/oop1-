@@ -1,0 +1,180 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam classAttributeIconSize 0
+skinparam nodesep 35
+skinparam ranksep 45
+hide empty members
+hide circle
+
+' ---------- Інтерфейс користувача ----------
+class MainPage <<View>>
+class HelpPage <<View>>
+
+class MainViewModel {
+  + Mode : DisplayMode
+  + StatusMessage : string
+  + NewCommand
+  + OpenCommand
+  + SaveCommand
+  + ShowHelpCommand
+  + AddRowCommand
+  + RemoveRowCommand
+  + AddColumnCommand
+  + RemoveColumnCommand
+  + ToggleModeCommand
+  + CommitCell(address, text) : bool
+}
+
+interface IDialogService <<interface>> {
+  + ChooseAsync(title, options)
+  + PromptAsync(title, message, value)
+  + ConfirmAsync(title, message)
+  + ShowHelpAsync()
+}
+
+class DialogService
+
+enum DisplayMode <<enumeration>> {
+  Expression
+  Value
+}
+
+' ---------- Таблиця ----------
+class Spreadsheet {
+  + RowCount : int
+  + ColumnCount : int
+  + GetCell(address) : Cell
+  + SetExpression(address, text)
+  + GetValue(address) : BigInteger
+  + AddRow()
+  + RemoveLastRow()
+  + AddColumn()
+  + RemoveLastColumn()
+}
+
+class Cell {
+  + Expression : string
+  + Value : BigInteger
+  + Error : ExpressionError
+  + HasError : bool
+}
+
+class CellAddress {
+  + Column : int
+  + Row : int
+  + Parse(text) : CellAddress
+}
+
+class DependencyGraph {
+  + Update(address, refs)
+  + GetReferences(address) : List
+  + HasCycle(address) : bool
+  + GetRecalcOrder(roots) : List
+}
+
+interface ICellProvider <<interface>> {
+  + GetValue(address) : BigInteger
+}
+
+' ---------- Аналіз і обчислення ----------
+class Lexer {
+  + Tokenize(text) : List<Token>
+}
+
+class Token {
+  + Type : TokenType
+  + Text : string
+  + Position : int
+}
+
+enum TokenType <<enumeration>> {
+  Number
+  CellRef
+  Operator
+  Function
+  LParen
+  RParen
+  End
+}
+
+class Parser {
+  + Parse(text) : Node
+}
+
+class ExpressionError {
+  + Message : string
+  + Position : int
+}
+
+abstract class Node <<abstract>> {
+  + {abstract} Evaluate(cells) : BigInteger
+}
+class NumberNode {
+  + Value : BigInteger
+}
+class CellRefNode {
+  + Address : CellAddress
+}
+class BinaryNode {
+  + Op : string
+  + Left : Node
+  + Right : Node
+}
+class FunctionNode {
+  + Name : string
+  + Argument : Node
+}
+
+' ---------- Збереження ----------
+interface ISpreadsheetStorage <<interface>> {
+  + SaveAsync(sheet, name)
+  + LoadAsync(name) : Spreadsheet
+}
+class LocalFileStorage
+class GoogleDriveStorage
+class SpreadsheetSerializer {
+  + {static} Serialize(sheet) : string
+  + {static} Deserialize(json) : Spreadsheet
+}
+class GoogleAuthService {
+  + SignInAsync()
+  + IsSignedIn : bool
+}
+
+' ---------- Зв'язки ----------
+MainPage ..> MainViewModel
+MainPage ..> HelpPage
+MainViewModel --> DisplayMode
+MainViewModel --> "1" Spreadsheet
+MainViewModel --> "2" ISpreadsheetStorage
+MainViewModel --> IDialogService
+IDialogService <|.. DialogService
+DialogService ..> HelpPage
+
+Spreadsheet *-- "*" Cell
+Spreadsheet *-- DependencyGraph
+Spreadsheet ..|> ICellProvider
+Cell --> CellAddress
+Cell --> "0..1" ExpressionError
+
+Spreadsheet ..> Parser
+Parser ..> Lexer
+Lexer ..> Token
+Token --> TokenType
+Parser ..> ExpressionError
+
+Node <|-- NumberNode
+Node <|-- CellRefNode
+Node <|-- BinaryNode
+Node <|-- FunctionNode
+Parser ..> Node
+Node ..> ICellProvider
+
+ISpreadsheetStorage <|.. LocalFileStorage
+ISpreadsheetStorage <|.. GoogleDriveStorage
+GoogleDriveStorage --> GoogleAuthService
+LocalFileStorage ..> SpreadsheetSerializer
+GoogleDriveStorage ..> SpreadsheetSerializer
+@enduml

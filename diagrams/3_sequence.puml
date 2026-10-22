@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 220
+
+actor "Користувач" as User
+participant "MainViewModel" as VM
+participant "Spreadsheet" as Sheet
+participant "Parser" as Par
+participant "DependencyGraph" as Dep
+participant "Node\n(дерево виразу)" as Tree
+participant "GoogleDriveStorage" as Store
+participant "GoogleAuthService" as Auth
+database "Google Drive" as Drive
+
+== Введення виразу в клітинку ==
+User -> VM : EditCellCommand(B2, "A1 ^ 2 + inc(A2) mod 3")
+VM -> Sheet : SetExpression(B2, text)
+Sheet -> Par : Parse(text)
+
+alt синтаксична помилка
+  Par --> Sheet : ExpressionError(повідомлення, позиція)
+  Sheet --> VM : помилка
+  VM --> User : повідомлення з позицією помилки
+else вираз правильний
+  Par --> Sheet : дерево виразу
+  Sheet -> Dep : Update(B2, [A1, A2])
+  Sheet -> Dep : HasCycle(B2)
+  alt є цикл
+    Dep --> Sheet : true
+    Sheet --> VM : помилка «циклічне посилання»
+    VM --> User : повідомлення про помилку
+  else циклу немає
+    Dep --> Sheet : false
+    Sheet -> Tree : Evaluate(Sheet)
+    Tree --> Sheet : значення
+    Sheet -> Sheet : перерахувати залежні клітинки
+    Sheet --> VM : готово
+    VM --> User : оновлена таблиця (ВИРАЗ / ЗНАЧЕННЯ)
+  end
+end
+
+== Збереження на Google Drive ==
+User -> VM : SaveCommand
+VM -> Store : Save(sheet, name)
+
+Store -> Auth : IsSignedIn()
+opt користувач ще не увійшов у Google
+  Store -> Auth : SignIn()
+  Auth -> Drive : запит авторизації (OAuth)
+  Drive --> Auth : токен доступу
+  Auth --> Store : готово
+end
+
+Store -> Drive : завантажити файл таблиці
+alt успішно
+  Drive --> Store : ок
+  Store --> VM : ок
+  VM --> User : «Таблицю збережено»
+else помилка
+  Drive --> Store : помилка
+  Store --> VM : виняток
+  VM --> User : повідомлення про помилку
+end
+@enduml

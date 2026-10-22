@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam packageStyle rectangle
+
+actor "Користувач" as User
+actor "Google Drive" as Drive
+
+rectangle "Електронні таблиці" {
+  usecase "Створити таблицю" as New
+  usecase "Змінити кількість\nрядків і стовпчиків" as Resize
+  usecase "Переглянути довідку" as Help
+  usecase "Перемкнути режим\nВИРАЗ / ЗНАЧЕННЯ" as Mode
+
+  usecase "Ввести вираз\nу клітинку" as Edit
+  usecase "Перевірити\nсинтаксис" as Syntax
+  usecase "Обчислити\nзначення" as Calc
+  usecase "Показати помилку" as Err
+
+  usecase "Зберегти таблицю" as Save
+  usecase "Відкрити таблицю" as Open
+  usecase "Увійти в Google\nакаунт" as Auth
+}
+
+User -- New
+User -- Resize
+User -- Help
+User -- Mode
+User -- Edit
+User -- Save
+User -- Open
+
+Edit ..> Syntax : <<include>>
+Edit ..> Calc : <<include>>
+Err ..> Syntax : <<extend>>
+
+Auth ..> Save : <<extend>>\n[Google Drive]
+Auth ..> Open : <<extend>>\n[Google Drive]
+
+Drive -- Auth
+@enduml
