@@ -5,14 +5,20 @@ namespace SpreadsheetApp.Views;
 
 public partial class MainPage : ContentPage
 {
-    private const double CellWidth = 110;
+    private const double CellWidth = 140;
     private const double CellHeight = 38;
     private const double HeaderWidth = 44;
 
-    private static readonly Color HeaderBackground = Color.FromArgb("#E3E3E3");
+    private static readonly Color LineColor = Color.FromArgb("#1F1F1F");
+    private static readonly Color HeaderBackground = Color.FromArgb("#0A0A0A");
+    private static readonly Color HeaderText = Color.FromArgb("#7A7A7A");
+    private static readonly Color CellText = Color.FromArgb("#F2F2F2");
+    private static readonly Color ErrorText = Color.FromArgb("#FF7A7A");
+    private static readonly Color ActiveBackground = Color.FromArgb("#141414");
 
     private readonly MainViewModel _viewModel;
     private readonly Dictionary<CellAddress, Entry> _entries = new();
+    private readonly HashSet<CellAddress> _editing = new();
 
     public MainPage(MainViewModel viewModel)
     {
@@ -32,7 +38,12 @@ public partial class MainPage : ContentPage
         TableGrid.Children.Clear();
         TableGrid.RowDefinitions.Clear();
         TableGrid.ColumnDefinitions.Clear();
+        TableGrid.BackgroundColor = LineColor;
+        TableGrid.ColumnSpacing = 1;
+        TableGrid.RowSpacing = 1;
+        TableGrid.Padding = new Thickness(1);
         _entries.Clear();
+        _editing.Clear();
 
         var sheet = _viewModel.Sheet;
 
@@ -47,6 +58,8 @@ public partial class MainPage : ContentPage
         {
             TableGrid.RowDefinitions.Add(new RowDefinition(new GridLength(CellHeight)));
         }
+
+        TableGrid.Add(CreateHeader(string.Empty), 0, 0);
 
         for (var column = 0; column < sheet.ColumnCount; column++)
         {
@@ -74,11 +87,11 @@ public partial class MainPage : ContentPage
     {
         Text = text,
         FontAttributes = FontAttributes.Bold,
+        FontSize = 12,
         HorizontalTextAlignment = TextAlignment.Center,
         VerticalTextAlignment = TextAlignment.Center,
         BackgroundColor = HeaderBackground,
-        TextColor = Colors.Black,
-        Margin = new Thickness(1)
+        TextColor = HeaderText
     };
 
     private Entry CreateEntry(CellAddress address)
@@ -86,18 +99,30 @@ public partial class MainPage : ContentPage
         var entry = new Entry
         {
             FontSize = 14,
-            Margin = new Thickness(1),
+            BackgroundColor = Colors.Black,
+            TextColor = CellText,
+            HorizontalTextAlignment = TextAlignment.End,
             VerticalTextAlignment = TextAlignment.Center
         };
 
         entry.Focused += (_, _) =>
         {
+            _editing.Add(address);
             _viewModel.Select(address);
             entry.Text = _viewModel.GetEditText(address);
-            entry.ClearValue(Entry.TextColorProperty);
+            entry.TextColor = CellText;
+            entry.BackgroundColor = ActiveBackground;
         };
 
-        entry.Unfocused += (_, _) => _viewModel.CommitCell(address, entry.Text);
+        entry.Unfocused += (_, _) =>
+        {
+            entry.BackgroundColor = Colors.Black;
+
+            if (_editing.Remove(address))
+            {
+                _viewModel.CommitCell(address, entry.Text);
+            }
+        };
 
         entry.Completed += (_, _) => entry.Unfocus();
 
@@ -108,21 +133,13 @@ public partial class MainPage : ContentPage
     {
         foreach (var (address, entry) in _entries)
         {
-            if (entry.IsFocused)
+            if (_editing.Contains(address))
             {
                 continue;
             }
 
             entry.Text = _viewModel.GetDisplayText(address);
-
-            if (_viewModel.IsErrorShown(address))
-            {
-                entry.TextColor = Colors.Red;
-            }
-            else
-            {
-                entry.ClearValue(Entry.TextColorProperty);
-            }
+            entry.TextColor = _viewModel.IsErrorShown(address) ? ErrorText : CellText;
         }
     }
 }

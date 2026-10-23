@@ -18,9 +18,7 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        var dataDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SpreadsheetApp");
+        var dataDirectory = @"C:\SpreadsheetApp";
 
         builder.Services.AddSingleton(new GoogleAuthService(dataDirectory));
         builder.Services.AddSingleton<GoogleDriveStorage>();

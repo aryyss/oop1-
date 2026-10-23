@@ -5,6 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:SpreadsheetApp.Views"
     Shell.FlyoutBehavior="Disabled"
+    Shell.BackgroundColor="Black"
+    Shell.TitleColor="#F2F2F2"
+    Shell.ForegroundColor="#F2F2F2"
     Title="Електронні таблиці">
 
     <ShellContent
