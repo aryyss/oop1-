@@ -1,3 +1,4 @@
+using System.Numerics;
 using SpreadsheetApp.Core.Model;
 using SpreadsheetApp.Core.ViewModels;
 
@@ -19,6 +20,7 @@ public partial class MainPage : ContentPage
     private readonly MainViewModel _viewModel;
     private readonly Dictionary<CellAddress, Entry> _entries = new();
     private readonly HashSet<CellAddress> _editing = new();
+    private CellAddress? _selected;
 
     public MainPage(MainViewModel viewModel)
     {
@@ -44,6 +46,8 @@ public partial class MainPage : ContentPage
         TableGrid.Padding = new Thickness(1);
         _entries.Clear();
         _editing.Clear();
+        _selected = null;
+        FormulaBar.Text = string.Empty;
 
         var sheet = _viewModel.Sheet;
 
@@ -108,10 +112,12 @@ public partial class MainPage : ContentPage
         entry.Focused += (_, _) =>
         {
             _editing.Add(address);
+            _selected = address;
             _viewModel.Select(address);
             entry.Text = _viewModel.GetEditText(address);
             entry.TextColor = CellText;
             entry.BackgroundColor = ActiveBackground;
+            FormulaBar.Text = ResultText(address);
         };
 
         entry.Unfocused += (_, _) =>
@@ -129,6 +135,18 @@ public partial class MainPage : ContentPage
         return entry;
     }
 
+    private string ResultText(CellAddress address)
+    {
+        var cell = _viewModel.Sheet.GetCell(address);
+
+        if (cell.HasError)
+        {
+            return cell.Error!.Message;
+        }
+
+        return cell.Value is BigInteger value ? value.ToString() : string.Empty;
+    }
+
     private void RefreshValues()
     {
         foreach (var (address, entry) in _entries)
@@ -140,6 +158,11 @@ public partial class MainPage : ContentPage
 
             entry.Text = _viewModel.GetDisplayText(address);
             entry.TextColor = _viewModel.IsErrorShown(address) ? ErrorText : CellText;
+        }
+
+        if (_selected is { } selected && !_editing.Contains(selected))
+        {
+            FormulaBar.Text = ResultText(selected);
         }
     }
 }

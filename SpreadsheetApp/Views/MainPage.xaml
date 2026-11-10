@@ -14,14 +14,11 @@
             <Setter Property="BorderWidth" Value="1" />
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontAttributes" Value="None" />
             <Setter Property="Padding" Value="14,8" />
-            <Setter Property="MinimumHeightRequest" Value="0" />
-            <Setter Property="MinimumWidthRequest" Value="0" />
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,1,*,1,Auto">
+    <Grid RowDefinitions="Auto,Auto,1,*,1,Auto">
 
         <FlexLayout Grid.Row="0" Wrap="Wrap" JustifyContent="Start" Margin="16,14,16,8">
             <Button Text="Нова" Command="{Binding NewCommand}" Margin="0,0,8,6" />
@@ -36,15 +33,23 @@
             <Button Text="Довідка" Command="{Binding ShowHelpCommand}" Margin="0,0,8,6" />
         </FlexLayout>
 
-        <BoxView Grid.Row="1" Color="#1F1F1F" HeightRequest="1" />
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="16,0,16,8" ColumnSpacing="8">
+            <Label Grid.Column="0" Text="fx" TextColor="#7A7A7A" FontSize="13"
+                   VerticalTextAlignment="Center" />
+            <Entry Grid.Column="1" x:Name="FormulaBar" IsReadOnly="True"
+                   BackgroundColor="#0A0A0A" TextColor="#F2F2F2" FontSize="14"
+                   Placeholder="Виберіть клітинку" />
+        </Grid>
 
-        <ScrollView Grid.Row="2" Orientation="Both" Margin="16,16,16,8">
+        <BoxView Grid.Row="2" Color="#1F1F1F" HeightRequest="1" />
+
+        <ScrollView Grid.Row="3" Orientation="Both" Margin="16,16,16,8">
             <Grid x:Name="TableGrid" HorizontalOptions="Start" VerticalOptions="Start" />
         </ScrollView>
 
-        <BoxView Grid.Row="3" Color="#1F1F1F" HeightRequest="1" />
+        <BoxView Grid.Row="4" Color="#1F1F1F" HeightRequest="1" />
 
-        <Label Grid.Row="4" Text="{Binding StatusMessage}" LineBreakMode="WordWrap"
+        <Label Grid.Row="5" Text="{Binding StatusMessage}" LineBreakMode="WordWrap"
                TextColor="#8A8A8A" FontSize="12" Margin="16,10,16,12" />
 
     </Grid>
